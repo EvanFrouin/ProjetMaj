@@ -9,13 +9,19 @@ TwoWire I2CSensors = TwoWire(0);
 
 // BME 280 (Using I2C)
 Adafruit_BME280 bme;
-// Sensor Variable (BME280)
-float temperature, humidity;
 void setup()
 {
   Serial.begin(115200);
+  initBME280();
+}
+
+void loop()
+{
+  printBME280();
+}
+
+void initBME280(){
   I2CSensors.begin(I2C_SDA, I2C_SCL, 100000);
-  // BME 280 (0x77 or 0x76 will be the address)
   if (!bme.begin(0x76, &I2CSensors))
   {
     Serial.println("Couldn't Find BME280 Sensor");
@@ -25,27 +31,32 @@ void setup()
   {
     Serial.println("BME280 Sensor Found");
   }
+
 }
 
-void loop()
-{
-  // -------------Temperature (C)------------------
+void printBME280(){
 
-  temperature = bme.readTemperature();
   Serial.print("Temperature = ");
-  Serial.print(temperature);
+  Serial.print(bme.readTemperature());
   Serial.print(" *C - ");
 
-  // ----------------------------------------------
 
-  // ---------------Humidity (%)-------------------
-
-  humidity = bme.readHumidity();
   Serial.print("Humidity = ");
-  Serial.print(humidity);
+  Serial.print(bme.readHumidity());
   Serial.println(" %");
 
-  // ----------------------------------------------
-
   delay(1000);
+  
+}
+
+float getTemp(){
+  return bme.readTemperature();
+}
+
+float getHum(){
+  return bme.readHumidity();
+}
+
+Adafruit_BME280 getBME(){
+  return bme;
 }
