@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{% block title %}{% endblock %} - Flask WebApp</title>
+</head>
+<body>
+    <a href="{{ url_for('main.index') }}">Home</a>
+    {% if current_user.is_authenticated %}
+    <a href="{{ url_for('main.profile') }}">Profile</a>
+    {% endif %}
+    {% if not current_user.is_authenticated %}
+    <a href="{{ url_for('auth.login') }}">Login</a>
+    {% endif %}
+    <a href="{{ url_for('auth.signup') }}">Signup</a>
+    {% if current_user.is_authenticated %}
+    <a href="{{ url_for('auth.logout') }}">Logout</a>
+    {% endif %}
+    <div id="content">{% block content %}{% endblock %}</div>
+</body>
+</html>
