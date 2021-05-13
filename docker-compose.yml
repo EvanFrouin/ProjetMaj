@@ -31,5 +31,11 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
+  web:
+    build: web/
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongo
 volumes:
   portainer_data:
