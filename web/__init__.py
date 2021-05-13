@@ -12,7 +12,7 @@ def create_app():
 
     app.config['MONGODB_SETTINGS'] = {
         'db': 'flask',
-        'host': 'localhost',
+        'host': 'mongo',
         'port': 27017
     }
 
