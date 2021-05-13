@@ -35,6 +35,8 @@ services:
     build: web/
     ports:
       - "5000:5000"
+    volumes:
+      - ./web:/web
     depends_on:
       - mongo
 volumes:
