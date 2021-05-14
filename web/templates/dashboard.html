@@ -11,13 +11,39 @@
 
 		let count = 1;
 
+		let width, height, gradient;
+		function getGradient(ctx, chartArea) {
+			const chartWidth = chartArea.right - chartArea.left;
+		  	const chartHeight = chartArea.bottom - chartArea.top;
+		  	if (gradient === null || width !== chartWidth || height !== chartHeight) {
+		    		width = chartWidth;
+		    		height = chartHeight;
+		    		gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+		    		gradient.addColorStop(0, 'rgb(0, 82, 100)');
+		    		gradient.addColorStop(0.5, 'rgb(233, 189, 21)');
+		    		gradient.addColorStop(1, 'rgb(212, 0, 0)');
+		  	}
+
+		  	return gradient;
+		}
+
 		let labels = [];
 		let data = {
 			labels: labels,
 			datasets: [{
 			label: 'Temperatures',
-			backgroundColor: 'rgb(255, 99, 132)',
-			borderColor: 'rgb(255, 99, 132)',
+			borderColor: (context) => {
+        			const chart = context.chart;
+			        const {ctx, chartArea} = chart;
+
+			        if (!chartArea) {
+			          // This case happens on initial chart load
+			          return null;
+			        }
+
+			        return getGradient(ctx, chartArea);
+			},
+			tension: 0.3,
 			data: [],
 			}]
 		};
@@ -32,8 +58,6 @@
 			document.getElementById('chart'),
 			config
 		);
-
-		chart.options.animation = false;
 
 		socket.on('web-data', (data) => {
 			chart.data.labels.push(count++);
