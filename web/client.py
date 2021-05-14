@@ -22,7 +22,7 @@ def send_data():
     socketio.emit('mqtt-data', random.randint(1, 100))
 
 
-schedule.every(2).seconds.do(send_data)
+schedule.every().seconds.do(send_data)
 
 while True:
     schedule.run_pending()
