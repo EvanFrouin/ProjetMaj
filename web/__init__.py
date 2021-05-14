@@ -1,6 +1,7 @@
 from flask import Flask
-from flask_mongoengine import MongoEngine
 from flask_login import LoginManager
+from flask_mongoengine import MongoEngine
+import random
 
 db = MongoEngine()
 
@@ -33,5 +34,13 @@ def create_app():
 
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
+
+    from flask_socketio import SocketIO
+
+    socketio = SocketIO(app)
+
+    @socketio.on('mqtt-data')
+    def forward_data(data):
+        socketio.emit('web-data', data)
 
     return app
