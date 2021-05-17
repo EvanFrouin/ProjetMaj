@@ -6,5 +6,5 @@ ENV FLASK_ENV=development
 COPY requirement.txt requirement.txt
 RUN pip install --no-cache-dir -r requirement.txt
 EXPOSE 5000
-COPY . .
+COPY .. .
 CMD ["flask", "run"]
