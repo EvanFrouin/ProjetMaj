@@ -8,6 +8,7 @@ import sys
 
 def signal_handler(sig, frame):
     print("\rExiting...")
+    socketio.disconnect()
     sys.exit(0)
 
 
@@ -27,5 +28,3 @@ schedule.every().seconds.do(send_data)
 while True:
     schedule.run_pending()
     time.sleep(1)
-
-socketio.disconnect()
