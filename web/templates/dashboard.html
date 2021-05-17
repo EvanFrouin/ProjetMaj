@@ -1,6 +1,15 @@
 {% extends "base.html" %}
-{% block title %}Index{% endblock %}
+{% block style %}{{ url_for('static', filename='style/pageContent.css') }}{% endblock %}
+{% block title %}Home{% endblock %}
 {% block content %}
+    <div class="wrapper">
+        <div class="grid-container vertical-center one">ECG</div>
+        <div class="grid-container vertical-center two">Temp patient</div>
+        <div class="grid-container vertical-center three">RFID patient</div>
+        <div class="grid-container vertical-center four">Temp humidity</div>
+        <div class="grid-container vertical-center five">Gaz</div>
+        <div class="grid-container vertical-center six">Infos patient (perso, traitement, rdv, opérations, ...)</div>
+    </div>
     <div>
         <canvas id="chart"></canvas>
     </div>
@@ -37,7 +46,6 @@
 			        const {ctx, chartArea} = chart;
 
 			        if (!chartArea) {
-			          // This case happens on initial chart load
 			          return null;
 			        }
 
