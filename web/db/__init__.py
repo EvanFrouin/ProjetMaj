@@ -1,4 +1,5 @@
 import csv
+import os.path
 from flask_mongoengine import MongoEngine
 from flask_login import UserMixin
 
@@ -31,7 +32,7 @@ class Room(db.Document):
 
 
 def init_patients():
-    with open('C:/Users/Utilisateur/Desktop/ProjetMaj/web/db/DB.csv', newline='', encoding='utf-8') as data:
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'DB.csv'), newline="", encoding='utf-8') as data:
         r = csv.reader(data, delimiter=';')
         next(r, None)
         for row in r:
