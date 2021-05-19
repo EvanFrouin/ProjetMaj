@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block style %}{{ url_for('static', filename='style/signupPage.css') }}{% endblock %}
+{% block title %}Signup{% endblock %}
+{% block content %}
+    <h2>Hôpital TrucMuch</h2>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div>
+                {{ messages[0] }}. Go to <a href="{{ url_for('auth.login') }}">login</a> page.
+            </div>
+        {% endif %}
+    {% endwith %}
+    <form class="flexboxLogin rounded" method="post" action="{{ url_for('auth.signup') }}">
+        <input class="flexboxLoginItems text-centered rounded" type="email" placeholder="Enter email" name="email" required>
+
+        <input class="flexboxLoginItems text-centered rounded" type="text" placeholder="Enter username" name="username" required>
+
+        <input class="flexboxLoginItems text-centered rounded" type="password" placeholder="Enter Password" name="password" required>
+
+        <button class="flexboxLoginButton rounded" type="submit">S'ENREGISTRER</button>
+    </form>
+{% endblock %}

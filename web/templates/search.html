@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block style %}{{ url_for('static', filename='style/pageContent.css') }}{% endblock %}
+{% block title %}Search{% endblock %}
+{% block content %}
+    <div class="container">
+            <i class="bi bi-search"></i>
+            <input class="text-centered rounded" type="text" placeholder="Search engine ...">
+        </div>
+        <div class="container" style="height: 35rem">
+            <p style="text-align: center; font-size: 1.3rem; font-weight: bold; margin-top: 15rem;">
+                Résultat avec un lien vers la page
+            </p>
+        </div>
+{% endblock %}
