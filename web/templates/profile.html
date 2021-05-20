@@ -1,6 +1,22 @@
 {% extends "base.html" %}
 {% block title %}Profile{% endblock %}
 {% block content %}
-    <br>
-    Hello {{ name }} !
+    <h3 id="name"></h3>
+    <p id="birth"></p>
+    <p id="size"></p>
+    <p id="weight"></p>
+    <p id="blood"></p>
+    <p id="phone"></p>
+    <p id="sn"></p>
+    <script>
+        let patient = JSON.parse(document.cookie.split('=')[1]);
+
+        document.getElementById("name").innerText = `${patient["name"]} ${patient["surname"]} (${patient["gender"]})`;
+        document.getElementById("birth").innerText = `${patient["date_of_birth"]} (${patient["place_of_birth"]})`;
+        document.getElementById("size").innerText = `Size: ${patient["size"]} cm`;
+        document.getElementById("weight").innerText = `Weight: ${patient["weight"]} kg`;
+        document.getElementById("blood").innerText = `Blood type: ${patient["blood_type"]}`;
+        document.getElementById("phone").innerText = `Phone number: ${patient["phone_number"]}`;
+        document.getElementById("sn").innerText = `Social security number: ${patient["social_number"]}`;
+    </script>
 {% endblock %}
