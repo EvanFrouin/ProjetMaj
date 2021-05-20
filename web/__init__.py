@@ -17,7 +17,7 @@ def create_app():
 
     db.init_app(app)
 
-    from .db import User, Patient, init_patients
+    from .db import User, Patient, init_patients, get_patient_by_query
 
     if len(Patient.objects) == 0:
         init_patients()
@@ -43,5 +43,10 @@ def create_app():
     @socketio.on('mqtt-data')
     def forward_data(data):
         socketio.emit('web-data', data)
+
+    @socketio.on('patient-id')
+    def send_patient_data(id):
+        patient = get_patient_by_query(True, pk=id)
+        socketio.emit('patient-data', patient.to_json())
 
     return app
