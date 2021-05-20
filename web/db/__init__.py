@@ -48,8 +48,8 @@ def insert_user(email, name, password):
     user.save()
 
 
-def get_patient_by_name(name):
-    return Patient.objects(name=name).first()
+def get_patient_by_query(**kwargs):
+    return Patient.objects(**{f"{list(kwargs.items())[0][0]}":f"{list(kwargs.items())[0][1]}"})
 
 
 def insert_patient(name, surname, gender,
