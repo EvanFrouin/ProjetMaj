@@ -32,7 +32,7 @@ class Room(db.Document):
 
 
 def init_patients():
-    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'DB.csv'), newline="", encoding='utf-8') as data:
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'DB.csv'), newline="", encoding='utf-8') as data:
         r = csv.reader(data, delimiter=';')
         next(r, None)
         for row in r:
@@ -48,8 +48,12 @@ def insert_user(email, name, password):
     user.save()
 
 
-def get_patient_by_query(**kwargs):
-    return Patient.objects(**{f"{list(kwargs.items())[0][0]}":f"{list(kwargs.items())[0][1]}"})
+def get_patient_by_query(first=False, **kwargs):
+    patients = Patient.objects(**{f"{list(kwargs.items())[0][0]}": f"{list(kwargs.items())[0][1]}"})
+    if first:
+        return patients.first()
+    else:
+        return patients
 
 
 def insert_patient(name, surname, gender,
