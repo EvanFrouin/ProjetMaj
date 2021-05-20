@@ -2,13 +2,24 @@
 {% block style %}{{ url_for('static', filename='style/pageContent.css') }}{% endblock %}
 {% block title %}Search{% endblock %}
 {% block content %}
+	<form id="queryForm" method="post" action={{ url_for("main.search") }}>
+    	<div class="container">
+    		<i id="queryButton" class="bi bi-search" onlcick=""></i>
+			<input name="query" class="text-centered rounded" type="text" placeholder="Search engine ...">
+		</div>
+	</form>
     <div class="container">
-            <i class="bi bi-search"></i>
-            <input class="text-centered rounded" type="text" placeholder="Search engine ...">
-        </div>
-        <div class="container" style="height: 35rem">
-            <p style="text-align: center; font-size: 1.3rem; font-weight: bold; margin-top: 15rem;">
-                Résultat avec un lien vers la page
-            </p>
-        </div>
+        {% if results %}
+ 			{% for patient in results %}
+				<p id="{{ patient.pk }}" onclick="displayPatient">{{ patient.name }} {{ patient.surname }}<p>
+			{% endfor %}
+		{% endif %}
+     </div>
+	<script type="text/javascript">
+		document.getElementById("queryButton").onclick = () => { document.getElementById("queryForm").submit(); };
+
+		function displayPatient() {
+			console.log('hello');
+		};
+	</script>
 {% endblock %}
