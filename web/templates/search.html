@@ -4,22 +4,37 @@
 {% block content %}
 	<form id="queryForm" method="post" action={{ url_for("main.search") }}>
     	<div class="container">
-    		<i id="queryButton" class="bi bi-search" onlcick=""></i>
+    		<i id="queryButton" class="bi bi-search"></i>
 			<input name="query" class="text-centered rounded" type="text" placeholder="Search engine ...">
 		</div>
 	</form>
     <div class="container">
         {% if results %}
  			{% for patient in results %}
-				<p id="{{ patient.pk }}" onclick="displayPatient">{{ patient.name }} {{ patient.surname }}<p>
+				<p id="{{ patient.pk }}" onclick="getPatientData(this.id)">{{ patient.name }} {{ patient.surname }}<p>
 			{% endfor %}
 		{% endif %}
      </div>
 	<script type="text/javascript">
+		let sio = io();
+
 		document.getElementById("queryButton").onclick = () => { document.getElementById("queryForm").submit(); };
 
-		function displayPatient() {
-			console.log('hello');
-		};
+		function setCookie(cookieValue, daysValid) {
+  			let d = new Date();
+  			d.setTime(d.getTime() + (daysValid * 24 * 60 * 60 * 1000));
+  			let expires = "expires="+ d.toUTCString();
+  			document.cookie = "LastPatient=" + cookieValue + ";" + expires + ";path={{ url_for('main.profile') }}";
+		}
+
+		function getPatientData(id) {
+			sio.emit('patient-id', id);
+		}
+
+		sio.on('patient-data', (data) => {
+				setCookie(data, 1);
+				location.replace("{{ url_for('main.profile') }}")
+		});
+
 	</script>
 {% endblock %}
