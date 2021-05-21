@@ -9,10 +9,14 @@
 		</div>
 	</form>
     <div class="container">
-        {% if results %}
+		{% if request.method == "GET" %}
+			<p>Entrez votre recherche.</p>
+        {% elif results %}
  			{% for patient in results %}
-				<p id="{{ patient.pk }}" onclick="getPatientData(this.id)">{{ patient.name }} {{ patient.surname }}<p>
+				<p id="{{ patient.pk }}" onclick="getPatientData(this.id)">{{ patient.name }} {{ patient.surname }}</p>
 			{% endfor %}
+		{% else %}
+			<p>Pas de résultat pour cette recherche.</p>
 		{% endif %}
      </div>
 	<script type="text/javascript">
@@ -20,9 +24,9 @@
 
 		document.getElementById("queryButton").onclick = () => { document.getElementById("queryForm").submit(); };
 
-		function setCookie(cookieValue, daysValid) {
+		function setCookie(cookieValue, minutesValid) {
   			let d = new Date();
-  			d.setTime(d.getTime() + (daysValid * 24 * 60 * 60 * 1000));
+  			d.setTime(d.getTime() + (minutesValid * 60 * 1000));
   			let expires = "expires="+ d.toUTCString();
   			document.cookie = "LastPatient=" + cookieValue + ";" + expires + ";path={{ url_for('main.profile') }}";
 		}
@@ -32,7 +36,7 @@
 		}
 
 		sio.on('patient-data', (data) => {
-				setCookie(data, 1);
+				setCookie(data, 10);
 				location.replace("{{ url_for('main.profile') }}")
 		});
 
