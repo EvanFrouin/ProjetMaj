@@ -1,6 +1,6 @@
-from flask import Flask
+from flask import Flask, session
 from flask_login import LoginManager
-
+from datetime import timedelta
 
 def create_app():
     from .db import db
@@ -25,6 +25,12 @@ def create_app():
     if len(Patient.objects) == 0:
         init_patients()
 
+
+    @app.before_request
+    def set_session_time_validity():
+        session.permanent = True
+        app.permanent_session_lifetime = timedelta(minutes=10)
+
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
@@ -38,6 +44,9 @@ def create_app():
 
     from web.routes.main import main as main_blueprint
     app.register_blueprint(main_blueprint)
+
+    from web.routes.admin import admin as admin_blueprint
+    app.register_blueprint(admin_blueprint)
 
     from flask_socketio import SocketIO
 
