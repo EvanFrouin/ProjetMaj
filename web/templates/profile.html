@@ -11,8 +11,13 @@
     <script>
         let patient = JSON.parse(document.cookie.split('=')[1]);
 
+		function formatDate(date) {
+			d = new Date(date);
+			return `${d.getDate()}/${d.getMonth()}/${d.getYear()} ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;
+		}
+
         document.getElementById("name").innerText = `${patient["name"]} ${patient["surname"]} (${patient["gender"]})`;
-        document.getElementById("birth").innerText = `${patient["date_of_birth"]} (${patient["place_of_birth"]})`;
+        document.getElementById("birth").innerText = `${formatDate(patient["date_of_birth"])} (${patient["place_of_birth"]})`;
         document.getElementById("size").innerText = `Size: ${patient["size"]} cm`;
         document.getElementById("weight").innerText = `Weight: ${patient["weight"]} kg`;
         document.getElementById("blood").innerText = `Blood type: ${patient["blood_type"]}`;
