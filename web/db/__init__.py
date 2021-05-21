@@ -32,6 +32,18 @@ class Room(db.Document):
     patient = db.ObjectIdField()
 
 
+def parse_params(param):
+    return ({key: param[key]} for key in param)
+
+
+def build_Q(parameters):
+	return (Q(**param) for param in parse_params(parameters))
+
+
+def build_query(parameters):
+	return (lambda a, b: a | b, build_Q(parameters))
+
+
 def init_patients():
     with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'DB.csv'), newline="", encoding='utf-8') as data:
         r = csv.reader(data, delimiter=';')
@@ -50,10 +62,11 @@ def insert_user(email, name, password):
 
 
 def get_patient_by_query(first=False, **kwargs):
-    patients = Patient.objects(
-		Q(**{f"{list(kwargs.items())[0][0]}": f"{list(kwargs.items())[0][1]}"}) |
-		Q(**{f"{list(kwargs.items())[1][0]}": f"{list(kwargs.items())[1][1]}"})
-	)
+    #patients = Patient.objects(
+	#	Q(**{f"{list(kwargs.items())[0][0]}": f"{list(kwargs.items())[0][1]}"}) |
+	#	Q(**{f"{list(kwargs.items())[1][0]}": f"{list(kwargs.items())[1][1]}"})
+	#)
+    patients = Patient.objects(build_query(kwargs))
     if first:
         return patients.first()
     else:
