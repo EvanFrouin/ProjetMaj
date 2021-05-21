@@ -1,6 +1,7 @@
 import csv
 import os.path
 from flask_mongoengine import MongoEngine
+from mongoengine.queryset.visitor import Q
 from flask_login import UserMixin
 
 db = MongoEngine()
@@ -49,7 +50,10 @@ def insert_user(email, name, password):
 
 
 def get_patient_by_query(first=False, **kwargs):
-    patients = Patient.objects(**{f"{list(kwargs.items())[0][0]}": f"{list(kwargs.items())[0][1]}"})
+    patients = Patient.objects(
+		Q(**{f"{list(kwargs.items())[0][0]}": f"{list(kwargs.items())[0][1]}"}) |
+		Q(**{f"{list(kwargs.items())[1][0]}": f"{list(kwargs.items())[1][1]}"})
+	)
     if first:
         return patients.first()
     else:
