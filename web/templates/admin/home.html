@@ -3,4 +3,9 @@
 {% block title %}Admin - Home{% endblock %}
 {% block content %}
 	<h1>Admin homepage</h1>
+	<ul>
+		<li><a href="{{ url_for('admin.users') }}">Users</a></li>
+		<li><a href="{{ url_for('admin.patients') }}">Patients</a></li>
+		<li><a href="{{ url_for('admin.rooms') }}">Rooms</a></li>
+	</ul>
 {% endblock %}
