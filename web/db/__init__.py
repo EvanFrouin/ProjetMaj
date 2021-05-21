@@ -11,7 +11,7 @@ class User(UserMixin, db.Document):
     email = db.StringField()
     name = db.StringField()
     password = db.StringField()
-
+    role = db.StringField()
 
 class Patient(db.Document):
     name = db.StringField()
@@ -45,7 +45,7 @@ def get_user_by_email(email):
 
 
 def insert_user(email, name, password):
-    user = User(email=email, name=name, password=password)
+    user = User(email=email, name=name, password=password, role="user")
     user.save()
 
 
