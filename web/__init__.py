@@ -7,6 +7,9 @@ def create_app():
 
     app = Flask(__name__)
 
+    app.jinja_env.trim_blocks = True
+    app.jinja_env.lstrip_blocks = True
+
     app.config['SECRET_KEY'] = 'secret-key'
 
     app.config['MONGODB_SETTINGS'] = {
