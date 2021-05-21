@@ -21,12 +21,14 @@
         <div id="container">
             <div class="sidenav" id="bar">
                 {% if current_user.is_authenticated %}
-                <a href="{{ url_for('main.dashboard') }}" class="bi bi-graph-up" id="dashboard"></a>
+                <a href="{{ url_for('main.home') }}" class="bi bi-graph-up" id="dashboard"></a>
                 <a href="{{ url_for('main.search') }}" class="bi bi-search" id="search"></a>
                 <a href="{{ url_for('main.profile') }}" class="fas fa-head-side-mask" id="profile"></a>
                 <a href="#" class="bi bi-geo-alt-fill" id="map"></a>
-                <a href="#" class="bi bi-arrow-repeat" id="updateItem"></a>
-                {% endif %}
+					{% if current_user.role == "admin" %}
+                		<a href="{{ url_for('admin.home') }}" class="bi bi-sliders" id="conf"></a>
+                	{% endif %}
+				{% endif %}
                 {% if not current_user.is_authenticated %}
                 <a href="{{ url_for('auth.login') }}" class="bi bi-box-arrow-in-right" id="login"></a>
                 <a href="{{ url_for('auth.signup') }}" class="bi bi-person-plus" id="signup"></a>
@@ -44,22 +46,25 @@
         $(document).ready( function() {
             $(".active").removeClass('active');
             switch (window.location.pathname) {
-                case "/":
+                case "{{ url_for('main.home') }}":
                     $("#dashboard").addClass('active');
                     break;
-                case "/search":
+                case "{{ url_for('main.search') }}":
                     $("#search").addClass('active');
                     break;
-                case "/profile":
+                case "{{ url_for('main.profile') }}":
                     $("#profile").addClass('active');
                     break;
-                case "/login":
+                case "{{ url_for('auth.login') }}":
                     $("#login").addClass('active');
                     break;
-                case "/signup":
+                case "{{ url_for('auth.signup') }}":
                     $("#signup").addClass('active');
                     break;
-            }
+				case "{{ url_for('admin.home') }}":
+					$("#conf").addClass('active');
+            		break;
+				}
         });
     </script>
 </html>
