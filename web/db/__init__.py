@@ -1,5 +1,7 @@
 import csv
 import os.path
+from functools import reduce
+
 from flask_mongoengine import MongoEngine
 from mongoengine.queryset.visitor import Q
 from flask_login import UserMixin
@@ -12,6 +14,7 @@ class User(UserMixin, db.Document):
     name = db.StringField()
     password = db.StringField()
     role = db.StringField()
+
 
 class Patient(db.Document):
     name = db.StringField()
@@ -37,11 +40,11 @@ def parse_params(param):
 
 
 def build_Q(parameters):
-	return (Q(**param) for param in parse_params(parameters))
+    return (Q(**param) for param in parse_params(parameters))
 
 
 def build_query(parameters):
-	return (lambda a, b: a | b, build_Q(parameters))
+    return reduce(lambda a, b: a | b, build_Q(parameters))
 
 
 def init_patients():
@@ -62,10 +65,6 @@ def insert_user(email, name, password):
 
 
 def get_patient_by_query(first=False, **kwargs):
-    #patients = Patient.objects(
-	#	Q(**{f"{list(kwargs.items())[0][0]}": f"{list(kwargs.items())[0][1]}"}) |
-	#	Q(**{f"{list(kwargs.items())[1][0]}": f"{list(kwargs.items())[1][1]}"})
-	#)
     patients = Patient.objects(build_query(kwargs))
     if first:
         return patients.first()
