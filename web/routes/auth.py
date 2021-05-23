@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
-from flask_login import login_user, logout_user, login_required
-from ..db import User, get_user_by_email, insert_user
+from flask_login import login_user, logout_user
+from ..db import get_user_by_email, insert_user
 
 auth = Blueprint('auth', __name__)
 
@@ -18,11 +18,11 @@ def login_post():
     user = get_user_by_email(email)
 
     if not user or password != user.password:
-        flash('Wrong credentials, please try again')
+        flash("Mauvais email ou mot de passe. Veuillez réessayer.")
         return redirect(url_for('auth.login'))
 
     login_user(user)
-    return redirect(url_for('main.dashboard'))
+    return redirect(url_for('main.home'))
 
 
 @auth.route('/signup')
@@ -39,16 +39,16 @@ def signup_post():
     user = get_user_by_email(email)
 
     if user:
-        flash('This email address is already in use')
+        flash("Cette adresse email est déjà utilisée.")
         return redirect(url_for('auth.signup'))
 
     insert_user(email, name, password)
 
+    flash("Compte créé avec succès !")
     return redirect(url_for('auth.login'))
 
 
 @auth.route('/logout')
-@login_required
 def logout():
     logout_user()
     return redirect(url_for('auth.login'))

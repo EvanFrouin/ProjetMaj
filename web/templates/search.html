@@ -2,13 +2,63 @@
 {% block style %}{{ url_for('static', filename='style/pageContent.css') }}{% endblock %}
 {% block title %}Search{% endblock %}
 {% block content %}
+	<form id="queryForm" method="post" action={{ url_for("main.search") }}>
+    	<div class="container">
+    		<i id="queryButton" class="bi bi-search"></i>
+			<input name="query" class="text-centered rounded" type="text" placeholder="Search engine ...">
+		</div>
+	</form>
     <div class="container">
-            <i class="bi bi-search"></i>
-            <input class="text-centered rounded" type="text" placeholder="Search engine ...">
-        </div>
-        <div class="container" style="height: 35rem">
-            <p style="text-align: center; font-size: 1.3rem; font-weight: bold; margin-top: 15rem;">
-                Résultat avec un lien vers la page
-            </p>
-        </div>
+		{% if request.method == "GET" %}
+			<p>Entrez votre recherche.</p>
+        {% elif results %}
+ 			{% for patient in results %}
+				<div id="{{ patient.pk }}">
+					<p onclick="getPatientData(this.parentElement.id)" style="display: inline-block">{{ patient.name }} {{ patient.surname }}</p>
+					{% if current_user.is_admin %}
+						<i class="bi bi-x" style="display: inline-block" onclick="deletePatient(this.parentElement.id)"></i>
+					{% endif %}
+				</div>
+			{% endfor %}
+		{% else %}
+			<p>Pas de résultat pour cette recherche.</p>
+		{% endif %}
+     </div>
+	<script type="text/javascript">
+		let sio = io();
+
+		document.getElementById("queryButton").onclick = () => { document.getElementById("queryForm").submit(); };
+
+		function setCookie(cookieValue, minutesValid) {
+  			let d = new Date();
+  			d.setTime(d.getTime() + (minutesValid * 60 * 1000));
+  			let expires = "expires="+ d.toUTCString();
+  			document.cookie = "LastPatient=" + cookieValue + ";" + expires + ";path={{ url_for('main.profile') }}";
+		}
+
+		function getPatientData(id) {
+			sio.emit('patient-data-q', id);
+		}
+
+		sio.on('patient-data-r', (data) => {
+				setCookie(data, 10);
+				location.replace("{{ url_for('main.profile') }}")
+		});
+
+		function deletePatient(id) {
+			if (confirm("Voulez-vous vraiment supprimer le patient ?")) {
+				sio.emit('patient-delete-q', id);
+			}
+		}
+
+		sio.on('patient-delete-r', (id, code) => {
+			if (!code) {
+				alert("Patient supprimé avec succès !");
+				document.getElementById(id).remove();
+			} else {
+				alert("Erreur lors de la suppression du patient.");
+			}
+		})
+
+	</script>
 {% endblock %}

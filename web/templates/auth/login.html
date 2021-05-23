@@ -8,7 +8,7 @@
 {% endif %}
 {% endwith %}
     <h2>Hôpital TrucMuch</h2>
-    <form class="flexboxLogin rounded" method="post" action="/login">
+    <form class="flexboxLogin rounded" method="post" action="{{ url_for('auth.login') }}">
         <input class="flexboxLoginItems text-centered rounded" type="email" placeholder="Enter email" name="email" required>
 
         <input class="flexboxLoginItems text-centered rounded" type="password" placeholder="Enter Password" name="password" required>
