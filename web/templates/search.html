@@ -13,7 +13,12 @@
 			<p>Entrez votre recherche.</p>
         {% elif results %}
  			{% for patient in results %}
-				<p id="{{ patient.pk }}" onclick="getPatientData(this.id)">{{ patient.name }} {{ patient.surname }}</p>
+				<div id="{{ patient.pk }}">
+					<p onclick="getPatientData(this.parentElement.id)" style="display: inline-block">{{ patient.name }} {{ patient.surname }}</p>
+					{% if current_user.is_admin %}
+						<i class="bi bi-x" style="display: inline-block" onclick="deletePatient(this.parentElement.id)"></i>
+					{% endif %}
+				</div>
 			{% endfor %}
 		{% else %}
 			<p>Pas de résultat pour cette recherche.</p>
@@ -32,13 +37,28 @@
 		}
 
 		function getPatientData(id) {
-			sio.emit('patient-id', id);
+			sio.emit('patient-data-q', id);
 		}
 
-		sio.on('patient-data', (data) => {
+		sio.on('patient-data-r', (data) => {
 				setCookie(data, 10);
 				location.replace("{{ url_for('main.profile') }}")
 		});
+
+		function deletePatient(id) {
+			if (confirm("Voulez-vous vraiment supprimer le patient ?")) {
+				sio.emit('patient-delete-q', id);
+			}
+		}
+
+		sio.on('patient-delete-r', (id, code) => {
+			if (!code) {
+				alert("Patient supprimé avec succès !");
+				document.getElementById(id).remove();
+			} else {
+				alert("Erreur lors de la suppression du patient.");
+			}
+		})
 
 	</script>
 {% endblock %}
