@@ -25,7 +25,7 @@
                 <a href="{{ url_for('main.search') }}" class="bi bi-search" id="search"></a>
                 <a href="{{ url_for('main.profile') }}" class="fas fa-head-side-mask" id="profile"></a>
                 <a href="#" class="bi bi-geo-alt-fill" id="map"></a>
-					{% if current_user.role == "admin" %}
+					{% if current_user.is_admin %}
                 		<a href="{{ url_for('admin.home') }}" class="bi bi-sliders" id="conf"></a>
                 	{% endif %}
 				{% endif %}
