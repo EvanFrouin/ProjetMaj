@@ -47,6 +47,11 @@ def build_query(parameters):
     return reduce(lambda a, b: a | b, build_Q(parameters))
 
 
+def reset_patient_collection():
+    Patient.drop_collection()
+    init_patients()
+
+
 def init_patients():
     with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'DB.csv'), newline="", encoding='utf-8') as data:
         r = csv.reader(data, delimiter=';')
