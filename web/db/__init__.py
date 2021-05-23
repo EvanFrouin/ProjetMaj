@@ -13,7 +13,7 @@ class User(UserMixin, db.Document):
     email = db.StringField()
     name = db.StringField()
     password = db.StringField()
-    role = db.StringField()
+    is_admin = db.BooleanField()
 
 
 class Patient(db.Document):
