@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
-from flask_login import login_user, logout_user, login_required
-from ..db import User, get_user_by_email, insert_user
+from flask_login import login_user, logout_user
+from ..db import get_user_by_email, insert_user
 
 auth = Blueprint('auth', __name__)
 
