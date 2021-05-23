@@ -4,8 +4,26 @@
 {% block content %}
 	<h1>Admin homepage</h1>
 	<ul>
-		<li><a href="{{ url_for('admin.users') }}">Users</a></li>
-		<li><a href="{{ url_for('admin.patients') }}">Patients</a></li>
+		<li><a href="{{ url_for('admin.users') }}">Utilisateurs</a></li>
 		<li><a href="{{ url_for('admin.rooms') }}">Rooms</a></li>
+		<li><a href="#" onclick="resetDB()">Réinitialisation de la base de données</a> </li>
 	</ul>
+	<script>
+		sio = io();
+
+		function resetDB() {
+			if (confirm("Voulez-vous vraiment réinitialiser la base de données ?")) {
+				sio.emit('patient-reset-q');
+			}
+		}
+
+		sio.on('patient-reset-r', (code) => {
+			if (!code) {
+				alert("Base de données réinitialisée avec succès !")
+			} else {
+				alert("Erreur lors de la réinitialisation de la base de données.")
+			}
+		});
+
+	</script>
 {% endblock %}
