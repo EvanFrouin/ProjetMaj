@@ -26,5 +26,5 @@ def search():
 @main.route('/search', methods=['POST'])
 @login_required
 def patient_query():
-	query = request.form.get("query")
-	return render_template("search.html", results=get_patient_by_query(name=query,surname=query))
+    query = request.form.get("query")
+    return render_template("search.html", results=get_patient_by_query(name__icontains=query, surname__icontains=query))
