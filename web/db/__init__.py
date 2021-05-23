@@ -93,3 +93,11 @@ def insert_patient(name, surname, gender,
                       date_of_birth=date_of_birth, place_of_birth=place_of_birth, phone_number=phone_number,
                       size=size, weight=weight, blood_type=blood_type, social_number=social_number)
     patient.save()
+
+
+def delete_patient(patient_id):
+    Patient.objects(id=patient_id).first().delete()
+
+
+def update_patient(patient_id, data):
+    Patient.objects(id=patient_id).update_one(**data)
