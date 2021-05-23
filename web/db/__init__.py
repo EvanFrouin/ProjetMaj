@@ -69,6 +69,15 @@ def insert_user(email, name, password):
     user.save()
 
 
+def delete_user(user_id):
+    User.objects(id=user_id).first().delete()
+
+
+def update_user_role(user_id):
+    role = (User.objects(id=user_id).first()).is_admin
+    User.objects(id=user_id).update_one(set__is_admin=not role)
+
+
 def get_patient_by_query(first=False, **kwargs):
     patients = Patient.objects(build_query(kwargs))
     if first:
