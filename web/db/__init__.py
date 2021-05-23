@@ -60,12 +60,16 @@ def init_patients():
             insert_patient(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
 
 
+def get_all_users():
+    return User.objects
+
+
 def get_user_by_email(email):
     return User.objects(email=email).first()
 
 
 def insert_user(email, name, password):
-    user = User(email=email, name=name, password=password, role="user")
+    user = User(email=email, name=name, password=password, isAdmin=False)
     user.save()
 
 
