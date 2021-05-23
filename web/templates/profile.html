@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Profile{% endblock %}
 {% block content %}
+    <p id="noPatient"></p>
     <h3 id="name"></h3>
     <p id="birth"></p>
     <p id="size"></p>
@@ -8,20 +9,176 @@
     <p id="blood"></p>
     <p id="phone"></p>
     <p id="sn"></p>
+    {% if current_user.is_admin %}
+        <br>
+        <h3>Modification</h3>
+        <form>
+            <label>
+                Prénom :
+                <input type="text">
+            </label><br>
+            <label>
+                Nom :
+                <input type="text">
+            </label><br>
+            <label>
+                M
+                <input type="radio" name="gender" value="m">
+            </label>
+            <label>
+                F
+                <input type="radio" name="gender" value="f">
+            </label><br>
+            <label>
+                Date de naissance :
+                <input type="date">
+            </label><br>
+            <label>
+                Heure de naissance :
+                <input type="time" step="1">
+            </label><br>
+            <label>
+                Lieu de naissance :
+                <input type="text">
+            </label><br>
+            <label>
+                Taille :
+                <input type="number">
+            </label><br>
+            <label>
+                Poids :
+                <input type="number">
+            </label><br>
+            <label>
+                Groupe sanguin :
+                <select>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                </select>
+            </label><br>
+            <label>
+                Téléphone :
+                <input type="tel">
+            </label><br>
+            <label>
+                Numéro de sécurité sociale :
+                <input type="text">
+            </label><br>
+        </form>
+        <button onclick="updatePatient()">Mettre à jour</button>
+{% endif %}
     <script>
-        let patient = JSON.parse(document.cookie.split('=')[1]);
-
-		function formatDate(date) {
-			d = new Date(date);
-			return `${d.getDate()}/${d.getMonth()}/${d.getYear()} ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;
+        function formatDateDisplay(date) {
+			let d = new Date(date);
+			return `${d.getDate().toString().padStart(2, '0')}/${d.getMonth().toString().padStart(2, '0')}/${d.getYear()}\
+			 ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`;
 		}
 
-        document.getElementById("name").innerText = `${patient["name"]} ${patient["surname"]} (${patient["gender"]})`;
-        document.getElementById("birth").innerText = `${formatDate(patient["date_of_birth"])} (${patient["place_of_birth"]})`;
-        document.getElementById("size").innerText = `Size: ${patient["size"]} cm`;
-        document.getElementById("weight").innerText = `Weight: ${patient["weight"]} kg`;
-        document.getElementById("blood").innerText = `Blood type: ${patient["blood_type"]}`;
-        document.getElementById("phone").innerText = `Phone number: ${patient["phone_number"]}`;
-        document.getElementById("sn").innerText = `Social security number: ${patient["social_number"]}`;
+        try {
+            let patient = JSON.parse(document.cookie.split('=')[1]);
+            document.getElementById("name").innerText = `${patient["name"]} ${patient["surname"]} (${patient["gender"]})`;
+            document.getElementById("birth").innerText = `${formatDateDisplay(patient["date_of_birth"])} (${patient["place_of_birth"]})`;
+            document.getElementById("size").innerText = `Taille : ${patient["size"]} cm`;
+            document.getElementById("weight").innerText = `Poids : ${patient["weight"]} kg`;
+            document.getElementById("blood").innerText = `Groupe sanguin : ${patient["blood_type"]}`;
+            document.getElementById("phone").innerText = `Téléphone : ${patient["phone_number"]}`;
+            document.getElementById("sn").innerText = `Numéro de sécurité sociale : ${patient["social_number"]}`;
+        } catch (e) {
+            document.getElementById("noPatient").innerText = "Pas de patient recherché."
+        }
     </script>
+    {% if current_user.is_admin %}
+    <script>
+        let sio = io();
+
+        function formatDateForm(date) {
+		    let d = new Date(date);
+		    return `${d.getFullYear()}-${d.getMonth().toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`
+        }
+
+        function formatTimeForm(date) {
+            let d = new Date(date);
+            return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`;
+        }
+
+        window.addEventListener('load', () => {
+            try {
+                let form = document.getElementsByTagName('form')[0];
+                form.children[0].children[0].value = patient['name'];
+                form.children[2].children[0].value = patient['surname'];
+
+                if (patient['gender'] === "M") {
+                    form.children[4].children[0].setAttribute("checked", "checked");
+                } else {
+                    form.children[5].children[0].setAttribute("checked", "checked");
+                }
+
+                form.children[7].children[0].value = formatDateForm(patient['date_of_birth']);
+                form.children[9].children[0].value = formatTimeForm(patient['date_of_birth']);
+                form.children[11].children[0].value = patient['place_of_birth'];
+                form.children[13].children[0].value = patient['size'];
+                form.children[15].children[0].value = patient['weight'];
+
+                let options = document.getElementsByTagName('option');
+                let types = ["AB+", "AB-", "A+", "A-", "B+", "B-", "O+", "O-"];
+                options[types.indexOf(patient['blood_type'])].setAttribute('selected', 'selected');
+
+                form.children[19].children[0].value = patient['phone_number'];
+                form.children[21].children[0].value = patient['social_number'];
+            } catch (e) {
+
+            }
+        });
+
+        function parseForm() {
+            let id = patient['_id']['$oid'];
+            let form = document.getElementsByTagName('form')[0];
+            let name = form.children[0].children[0].value;
+            let surname = form.children[2].children[0].value;
+            let gender = (form.children[4].children[0].checked) ? "M" : "F";
+            let dob = form.children[7].children[0].value;
+            let tob = form.children[9].children[0].value;
+            let pob = form.children[11].children[0].value;
+            let size = form.children[13].children[0].value;
+            let weight = form.children[15].children[0].value;
+            let blood = document.getElementsByTagName('select')[0].value
+            let phone = form.children[19].children[0].value;
+            let sn = form.children[21].children[0].value;
+            return JSON.stringify({
+                'id': id,
+                'name': name,
+                'surname': surname,
+                'gender': gender,
+                'place_of_birth': pob,
+                'date_of_birth': `${dob} ${tob}`,
+                'size__': size,
+                'weight': weight,
+                'blood_type': blood,
+                'phone_number': phone,
+                'social_number': sn,
+            });
+        }
+
+        function updatePatient() {
+            if(confirm("Voulez-vous mettre à jour les données de ce patient ?")) {
+                let data = parseForm();
+                sio.emit('patient-update-q', data);
+            }
+        }
+
+        sio.on('patient-update-r', (code) => {
+            if (code) {
+                alert("Patient mis à jour avec succès ! Les données seront mises à jour à la prochaine recherche.")
+            } else {
+                alert("Erreur lors de la mise à jour du patient.")
+            }
+        })
+    </script>
+    {% endif %}
 {% endblock %}
