@@ -1,19 +1,20 @@
 from functools import wraps
-from flask import Blueprint, render_template, request, abort
+from flask import Blueprint, render_template, abort
 from flask_login import login_required, current_user
-from ..db import get_patient_by_query
+from ..db import get_all_users
 
 admin = Blueprint('admin', __name__)
 
 
 def admin_required(f):
-	@login_required
-	@wraps(f)
-	def route(*args, **kwargs):
-		if not current_user.role == "admin":
-			abort(403)
-		return f(*args, **kwargs)
-	return route
+    @login_required
+    @wraps(f)
+    def route(*args, **kwargs):
+        if not current_user.is_admin:
+            abort(403)
+        return f(*args, **kwargs)
+
+    return route
 
 
 @admin.route('/admin/home')
@@ -21,19 +22,14 @@ def admin_required(f):
 def home():
     return render_template("admin/home.html")
 
+
 @admin.route('/admin/users')
 @admin_required
 def users():
-	return {'code': 'ok'}
-
-
-@admin.route('/admin/patients')
-@admin_required
-def patients():
-	return {'code': 'ok'}
+    return render_template("admin/users.html", results=get_all_users())
 
 
 @admin.route('/admin/rooms')
 @admin_required
 def rooms():
-	return {'code': 'ok'}
+    return {'code': 'ok'}
