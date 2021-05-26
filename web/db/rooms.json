@@ -1,0 +1,25 @@
+{
+  "rooms": [
+    {
+      "name": "Chambre 1",
+      "publishers": [
+        ""
+      ],
+      "patient": null
+    },
+    {
+      "name": "Chambre 2",
+      "publishers": [
+        ""
+      ],
+      "patient": null
+    },
+    {
+      "name": "Chambre 3",
+      "publishers": [
+        ""
+      ],
+      "patient": null
+    }
+  ]
+}

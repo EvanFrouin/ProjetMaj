@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block style %}{{ url_for('static', filename='style/pageContent.css') }}{% endblock %}
+{% block title %}Admin - Utilisateurs{% endblock %}
+{% block content %}
+<div class="roomprofile">
+    <h2>Chambres</h2>
+    <table style="width: 98%;" class="tablesearch">
+        <thead>
+            
+            <tr>
+                <th>Nom</th>
+                <th>Patient</th>
+                <th>Publishers</th>
+            </tr>
+        
+        <tr></tr>
+
+        </thead>
+        <tbody>
+            {% for room in results %}
+                <tr id="{{ room.pk }}">
+                    <td>{{ room.name }}</td>
+                    <td>
+                        {% if room.patient %}
+                            {{ room.patient }}
+                        {% else %}
+                            Pas de patient associé.
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% for publisher in room.publishers if publishers|length > 0 %}
+                            {{ publisher }}
+                        {% else %}
+                            Pas de publisher associé.
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+    <script>
+        let sio = io();
+    </script>
+{% endblock %}
