@@ -82,7 +82,7 @@ def process_pos(content):
 
 
                 # Find the anchor (publisher) with the biggest rssi
-                if int(p['rssi']) > int(t['position']['rssi']) and p['notSeen'] < 10:
+                if int(p['rssi']) > int(t['position']['rssi']) and p['notSeen'] < 3:
                     t['position']['rssi'] = p['rssi']
                     t['position']['publisher'] = p['publisher']
 

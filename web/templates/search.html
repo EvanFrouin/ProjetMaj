@@ -51,7 +51,11 @@
 			<p>Pas de résultat pour cette recherche.</p>
 		{% endif %}
      </div>
-	<script type="text/javascript" onload='document.getElementById("queryForm").submit();'>
+	<script type="text/javascript">
+		{% if request.method == "GET" %}
+			document.getElementById("queryForm").submit();
+        {% endif %}
+
 		let sio = io();
 
 		document.getElementById("queryButton").onclick = () => { document.getElementById("queryForm").submit(); };
