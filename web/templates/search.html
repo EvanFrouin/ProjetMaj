@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block style %}{{ url_for('static', filename='style/pageContent.css') }}{% endblock %}
+{% block title %}Search{% endblock %}
+{% block content %}
+	<form id="queryForm" method="post" action={{ url_for("main.search") }}>
+    	<div class="container">
+    		<i id="queryButton" class="bi bi-search"></i>
+			<input name="query" class="text-centered rounded" type="text" placeholder="Search engine ...">
+		</div>
+	</form>
+    <div class="container">
+		{% if request.method == "GET" %}
+			<p>Entrez votre recherche.</p>
+        {% elif results %}
+ 			
+				
+				<table style="width: 98%;" class="tablesearch">
+					<colgroup>
+						<col span="1" style="width: 40%;"></col>
+						<col span="1" style="width: 40%;"></col>
+						<col span="1" style="width: auto;"></col>
+					</colgroup>
+					<tr>
+						<th>Prénom</th>
+						<th>Nom</th>
+						
+						{% if current_user.is_admin %}
+							<th>Supprimer</th>
+						{% endif %}
+					</tr>
+				</table>
+				<table style="width: 98%;" class="tablesearch">
+					<colgroup>
+						<col span="1" style="width: 40%;"></col>
+						<col span="1" style="width: 40%;"></col>
+						<col span="1" style="width: auto;"></col>
+					  </colgroup>
+					{% for patient in results %}
+					<tr id="{{ patient.pk }}" >
+						<td onclick="getPatientData(this.parentElement.id)">{{ patient.name }}</td>
+						<td onclick="getPatientData(this.parentElement.id)">{{ patient.surname }}</td>
+						
+						{% if current_user.is_admin %}
+							<td><i class="bi bi-x" style="display: inline-block" onclick="deletePatient(this.parentElement.id)"></i></td>
+						{% endif %}
+					</tr>
+					{% endfor %}
+				</table>
+			
+		{% else %}
+			<p>Pas de résultat pour cette recherche.</p>
+		{% endif %}
+     </div>
+	<script type="text/javascript">
+		{% if request.method == "GET" %}
+			document.getElementById("queryForm").submit();
+        {% endif %}
+
+		let sio = io();
+
+		document.getElementById("queryButton").onclick = () => { document.getElementById("queryForm").submit(); };
+
+		function setCookie(cookieValue, minutesValid) {
+  			let d = new Date();
+  			d.setTime(d.getTime() + (minutesValid * 60 * 1000));
+  			let expires = "expires="+ d.toUTCString();
+  			document.cookie = "LastPatient=" + cookieValue + ";" + expires + ";path={{ url_for('main.profile') }}";
+		}
+
+		function getPatientData(id) {
+			sio.emit('patient-data-q', id);
+		}
+
+		sio.on('patient-data-r', (data) => {
+				setCookie(data, 10);
+				location.replace("{{ url_for('main.profile') }}")
+		});
+
+		function deletePatient(id) {
+			if (confirm("Voulez-vous vraiment supprimer le patient ?")) {
+				sio.emit('patient-delete-q', id);
+			}
+		}
+
+		sio.on('patient-delete-r', (id, code) => {
+			if (!code) {
+				alert("Patient supprimé avec succès !");
+				document.getElementById(id).remove();
+			} else {
+				alert("Erreur lors de la suppression du patient.");
+			}
+		})
+
+	</script>
+{% endblock %}

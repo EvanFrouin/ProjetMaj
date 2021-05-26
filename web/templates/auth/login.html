@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block style %}{{ url_for('static', filename='style/loginPage.css') }}{% endblock %}
+{% block title %}Intranet - Login{% endblock %}
+{% block content %}
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{{ messages[0] }}
+{% endif %}
+{% endwith %}
+    <h2>Hôpital Cyberiot</h2>
+    <form class="flexboxLogin rounded" method="post" action="{{ url_for('auth.login') }}">
+        <input class="flexboxLoginItems text-centered rounded" type="email" placeholder="Enter email" name="email" required>
+
+        <input class="flexboxLoginItems text-centered rounded" type="password" placeholder="Enter Password" name="password" required>
+
+        <button class="flexboxLoginButton rounded" type="submit">SE CONNECTER</button>
+    </form>
+{% endblock %}

@@ -1,0 +1,42 @@
+body {
+    font-family: "Arial", sans-serif;
+}
+
+.sidenav {
+    height: 100%;
+    width: 5rem;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: dimgrey;
+    overflow-x: hidden;
+    padding-top: 20px;
+}
+
+.sidenav a {
+    text-align: center;
+    text-decoration: none;
+    font-size: 3rem;
+    color: black;
+    display: block;
+    margin-bottom: 1.5rem;
+    transition: .3s;
+}
+
+.sidenav #updateItem{
+    margin-top: 30rem;
+}
+
+.sidenav a:hover {
+    padding-left: .5rem;
+}
+
+.sidenav .active{
+    color: red;
+}
+
+#content {
+    margin-left: 5rem;
+    padding-top: .5rem;
+}

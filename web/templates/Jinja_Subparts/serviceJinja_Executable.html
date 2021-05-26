@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- CSS Go changer la police-->
+        <link rel="stylesheet" href="flexWrap.css">
+    </head>
+    <body>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <div class="zone " id="id-BFA9">
+            <div class="zone-title " id="title-id-BFA9">
+                Zone 1 (celle qui est jolie)
+            </div>
+            <div class="flex-container">
+
+                <!-- Begin of the graph div -->
+                <div>
+                    TITLE<br><!--TO CHANGE -->
+                    <canvas id="CHART_ID"></canvas><!--TO CHANGE -->
+                    <script type="text/javascript" charset="utf-8">
+                        let width_ID, height_ID, gradient_ID;
+                        function getGradient(ctx, chartArea) {
+                            const chartWidth = chartArea.right - chartArea.left;// TO CHANGE 
+                            const chartHeight = chartArea.bottom - chartArea.top;// TO CHANGE 
+                            if (gradient_ID === null || width_ID !== chartWidth || height_ID !== chartHeight) {// TO CHANGE 
+                                    width_ID = chartWidth;// TO CHANGE 
+                                    height_ID = chartHeight;// TO CHANGE 
+                                    gradient_ID = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);// TO CHANGE 
+                                    gradient_ID.addColorStop(0, 'rgb(0, 82, 100)');// TO CHANGE 
+                                    gradient_ID.addColorStop(0.5, 'rgb(233, 189, 21)');// TO CHANGE 
+                                    gradient_ID.addColorStop(1, 'rgb(212, 0, 0)');// TO CHANGE 
+                            }
+
+                            return gradient_ID;
+                        }
+
+                        let labels_ID = [1,2,3,4]; // TO CHANGE  // DOTO Remove data for test 
+                        let data_ID = {// TO CHANGE 
+                            labels: labels_ID,// TO CHANGE 
+                            datasets: [{
+                            label: 'DATATYPE', // TO CHANGE 
+                            borderColor: (context) => {
+                                    const chart = context.chart;
+                                    const {ctx, chartArea} = chart;
+
+                                    if (!chartArea) {
+                                      // This case happens on initial chart load
+                                      return null;
+                                    }
+
+                                    return getGradient(ctx, chartArea);
+                            },
+                            tension: 0.3,
+                            data: [1,5,7,1], // DOTO Remove data for test 
+                            }]
+                        };
+
+                        const config_ID = {// TO CHANGE 
+                            type: 'line',
+                            data: data_ID,// TO CHANGE 
+                            options: {}
+                        }
+
+                        let chart_ID = new Chart(// TO CHANGE 
+                            document.getElementById('CHART_ID'),// TO CHANGE 
+                            config_ID// TO CHANGE 
+                        );
+
+                        let socket_ID = io();// TO CHANGE 
+                        let count_ID = 1;// TO CHANGE 
+                        socket_ID.on('SOCKET_ID', (data) => {// TO CHANGE 
+                            chart_ID.data.labels.push(count_ID++);// TO CHANGE (maybe cchange the count_id with a date or nothing ?)
+                            chart_ID.data.datasets.forEach((dataset) => {// TO CHANGE 
+                                dataset.data.push(data);
+                            });
+                            chart_ID.update();// TO CHANGE
+                        });
+                    </script>
+                </div>
+                <!-- Enf of the graph div -->
+            </div>
+        </div>
+    </body>
+</html>

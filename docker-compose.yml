@@ -1,0 +1,43 @@
+version: "3"
+services:
+  portainer:
+    image: portainer/portainer
+    restart: always
+    ports:
+      - "8000:8000"
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - portainer_data:/data
+  mosquitto:
+    image: eclipse-mosquitto
+    restart: always
+    ports:
+      - "8883:8883"
+      - "9001:9001"
+    depends_on:
+      - portainer
+  mongo:
+    image: webhippie/mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+  mongo-express:
+    image: malaslt/mongo-express-arm
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+  web:
+    build: web/
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./web:/web
+    depends_on:
+      - mongo
+volumes:
+  portainer_data:

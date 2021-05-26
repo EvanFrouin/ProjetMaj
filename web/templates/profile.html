@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<div class="room" id="errNoP">
+    <p id="noPatient"></p>
+</div>
+<div class="roomprofile" id="profile_patient">
+    <div>
+        <h1 id="name"></h1>
+        <table style="width:50%; margin: auto;">
+            <tr>
+              <th>Date de Naissance</th>
+              <th>Lieu de Naissance</th>
+            </tr>
+            <tr>
+                <td id="dobirth"></td>
+                <td id="pobirth"></td>
+            </tr>
+          </table>
+          <p> </p>
+          <table style="width:60%; margin: auto;">
+            <tr>
+              <th>Genre</th>
+              <th>Taille (cm)</th>
+              <th>Poids (kg)</th>
+              <th>Grp Sanguin</th>
+            </tr>
+            <tr>
+                <td id="gender"></td>
+                <td id="size"></td>
+                <td id="weight"></td>
+                <td id="blood"></td>
+            </tr>
+          </table>
+          <p> </p>
+          <table style="width:50%; margin: auto;" >
+            <tr>
+              <th>Num. Téléphone</th>
+              <th>Num. Sec. Sociale</th>
+            </tr>
+            <tr>
+                <td id="phone"></td>
+                <td id="sn"></td>
+            </tr>
+          </table>
+          <p> </p>
+    </div>
+</div>
+    {% if current_user.is_admin %}
+    <div class="roomprofile" id="edit">
+        <h3>Modification</h3>
+        <form id="ed_form">
+        <table style="width:100%;">
+            
+            <colgroup>
+              <col span="1" style="width: 50%;"></col>
+              <col span="1" style="width: 50%;"></col>
+            </colgroup>
+            <tr>
+                <th>Prénom</th>
+                <td><label><input id="ed_prenom" type="text"></label></td>
+            </tr>
+            <tr>
+                <th>Nom</th>
+                <td><label><input id="ed_nom" type="text" ></label></td>
+            </tr>
+            <tr>
+                <th>Genre</th>
+                <td><label>
+                    M
+                    <input id="ed_M" type="radio" name="gender" value="m">
+                </label>
+                <label>
+                    F
+                    <input id="ed_F" type="radio" name="gender" value="f">
+                </label></td>
+            </tr>
+            <tr>
+                <th>Date de naissance</th>
+                <td><label><input id="ed_dob" type="date"></label></td>
+            </tr>
+            <tr>
+                <th>Heure de naissance</th>
+                <td><label><input id="ed_hob" type="time" step="1"></label></td>
+            </tr>
+            <tr>
+                <th>Lieu de naissance</th>
+                <td><label><input id="ed_pob" type="text"></label></td>
+            </tr>
+            <tr>
+                <th>Taille (cm)</th>
+                <td><label><input id="ed_taille" type="number"></label></td>
+            </tr>
+            <tr>
+                <th>Poids (kg)</th>
+                <td><label><input id="ed_poids" type="number"></label></td>
+            </tr>
+            <tr>
+                <th>Groupe sanguin</th>
+                <td>
+                    <label>
+                        <select id="ed_sang_gp">
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                        </select>
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <th>Téléphone</th>
+                <td><label><input id="ed_tel" type="tel"></label></td>
+            </tr>
+            <tr>
+                <th>Num. Sec. Sociale</th>
+                <td><label><input id="ed_sec" type="text"></label></td>
+            </tr>
+          </table>
+        </form>
+    
+        <button class="subbtn" onclick="updatePatient()">Mettre à jour</button>
+    </div>
+{% endif %}
+    <script>
+        let patient; 
+
+        function formatDateDisplay(date) {
+			let d = new Date(date);
+			return `${d.getDate().toString().padStart(2, '0')}/${d.getMonth().toString().padStart(2, '0')}/${d.getYear()}\
+             ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`;
+		}
+
+        try {
+            patient = JSON.parse(document.cookie.split(';')[0].split('=')[1]);
+            patient['date_of_birth'] = patient['date_of_birth'].replace(" ", "T");
+            document.getElementById("errNoP").style.display = 'none';
+            document.getElementById("name").innerText = `${patient["name"]} ${patient["surname"]}`;
+            document.getElementById("gender").innerText = `${patient["gender"]}`;
+            document.getElementById("dobirth").innerText = `${formatDateDisplay(patient["date_of_birth"])}`;
+            document.getElementById("pobirth").innerText = `${patient["place_of_birth"]}`;
+            document.getElementById("size").innerText = `${patient["size"]}`;
+            document.getElementById("weight").innerText = `${patient["weight"]}`;
+            document.getElementById("blood").innerText = `${patient["blood_type"]}`;
+            document.getElementById("phone").innerText = `${patient["phone_number"]}`;
+            document.getElementById("sn").innerText = `${patient["social_number"]}`;
+        } catch (e) {
+            console.log(e);
+            document.getElementById("profile_patient").style.display = 'none';
+            document.getElementById("edit").style.display = 'none' ;
+            document.getElementById("noPatient").innerText = "Pas de patient recherché."
+        }
+    </script>
+    {% if current_user.is_admin %}
+    <script>
+        let sio = io();
+
+        function formatDateForm(date) {
+		    let d = new Date(date);
+		    return `${d.getFullYear()}-${d.getMonth().toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
+        }
+
+        function formatTimeForm(date) {
+            let d = new Date(date);
+            return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`;
+        }
+
+        window.addEventListener('load', () => {
+            try {
+                let form = document.getElementsByTagName('form')[1];
+                document.getElementById("ed_prenom").value = patient['name'];
+                document.getElementById("ed_nom").value = patient['surname'];
+
+                //form.getElementById("ed_prenom").value = "Salut";
+                document.getElementById("ed_prenom").value = patient['name'];
+                document.getElementById("ed_nom").value = patient['surname'];
+
+                if (patient['gender'] === "M") {
+                    document.getElementById("ed_M").setAttribute("checked", "checked");
+                } else {
+                    document.getElementById("ed_F").setAttribute("checked", "checked");
+                }
+
+                document.getElementById("ed_dob").value = formatDateForm(patient['date_of_birth']);
+                document.getElementById("ed_hob").value = formatTimeForm(patient['date_of_birth']);
+                document.getElementById("ed_pob").value = patient['place_of_birth'];
+                document.getElementById("ed_taille").value = patient['size'];
+                document.getElementById("ed_poids").value = patient['weight'];
+
+
+                let options = document.getElementsByTagName('option');
+                let types = ["AB+", "AB-", "A+", "A-", "B+", "B-", "O+", "O-"];
+                document.getElementById("ed_sang_gp").selectedIndex = types.indexOf(patient['blood_type']);
+
+                document.getElementById("ed_tel").value = patient['phone_number'];
+                document.getElementById("ed_sec").value = patient['social_number'];
+                
+            } catch (e) {
+
+            }
+        });
+
+        function parseForm() {
+            let id = patient['_id']['$oid'];
+            //let form = document.forms["ed_form"];
+            let form = document.getElementsByTagName('form')[1];
+            let name = document.getElementById("ed_prenom").value;
+            let surname = document.getElementById("ed_nom").value;
+            let gender = (document.getElementById("ed_M").checked) ? "M" : "F";
+            let dob = document.getElementById("ed_dob").value;
+            let tob = document.getElementById("ed_hob").value;
+            let pob = document.getElementById("ed_pob").value;
+            let size = document.getElementById("ed_taille").value;
+            let weight = document.getElementById("ed_poids").value;
+            let blood = document.getElementById("ed_sang_gp").value
+            let phone = document.getElementById("ed_tel").value;
+            let sn = document.getElementById("ed_sec").value;
+
+            
+            
+            return JSON.stringify({
+                'id': id,
+                'name': name,
+                'surname': surname,
+                'gender': gender,
+                'place_of_birth': pob,
+                'date_of_birth': `${dob} ${tob}`,
+                'size__': size,
+                'weight': weight,
+                'blood_type': blood,
+                'phone_number': phone,
+                'social_number': sn,
+            });
+        }
+
+        function updatePatient() {
+            if(confirm("Voulez-vous mettre à jour les données de ce patient ?")) {
+                let data = parseForm();
+                sio.emit('patient-update-q', data);
+            }
+        }
+
+        sio.on('patient-update-r', (code) => {
+            if (!code) {
+                //alert("Patient mis à jour avec succès !")
+                sio.emit('patient-data-q', patient['_id']['$oid']);
+            } else {
+                alert("Erreur lors de la mise à jour du patient.")
+            }
+        })
+
+        function setCookie(cookieValue, minutesValid) {
+            let d = new Date();
+            d.setTime(d.getTime() + (minutesValid * 60 * 1000));
+            let expires = "expires="+ d.toUTCString();
+            document.cookie = "LastPatient=" + cookieValue + ";" + expires + ";path={{ url_for('main.profile') }}";
+        }
+        
+        sio.on('patient-data-r', (data) => {
+                setCookie(data, 10);
+                location.replace("{{ url_for('main.profile') }}")
+        });
+
+    </script>
+    {% endif %}
+{% endblock %}

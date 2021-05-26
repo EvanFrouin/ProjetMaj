@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block style %}{{ url_for('static', filename='style/pageContent.css') }}{% endblock %}
+{% block title %}Admin - Utilisateurs{% endblock %}
+{% block content %}
+<div class="roomprofile">
+    <h2>Utilisateurs</h2>
+    <table style="width: 98%;" class="tablesearch">
+        <thead>
+            
+            <tr>
+                <th>Mail</th>
+                <th>Nom</th>
+                <th>Role</th>
+                <th>Suppression</th>
+                <th>Modification</th>
+            </tr>
+        
+        <tr></tr>
+
+        </thead>
+        <tbody>
+            {% for user in results %}
+                <tr id="{{ user.pk }}">
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.name }}</td>
+                    <td>
+                        {% if user.is_admin %}
+                            Administrateur
+                        {% else %}
+                            Utilisateur
+                        {% endif %}
+                    </td>
+                    {%if not user.is_admin %}
+                        <td class="bi bi-x" onclick="deleteUser(this.parentElement.id)"></td>
+                        <td class="bi bi-arrow-up" onclick="updateUserRole(this.parentElement.id)"></td>
+                    {% else %}
+                        <td></td>
+                        <td class="bi bi-arrow-down" onclick="updateUserRole(this.parentElement.id)"></td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+    <script>
+        let sio = io();
+
+        function deleteUser(id) {
+			if (confirm("Voulez-vous vraiment supprimer l'utilisateur' ?")) {
+				sio.emit('user-delete-q', id);
+			}
+		}
+
+		sio.on('user-delete-r', (id, code) => {
+			if (!code) {
+				alert("Utilisateur supprimé avec succès !");
+				document.getElementById(id).remove();
+			} else {
+				alert("Erreur lors de la suppression de l'utilisateur.");
+			}
+		})
+
+        function updateUserRole(id) {
+            if (confirm("Voulez-vous changer le rôle de l'utilisateur ?")) {
+                sio.emit('user-role-q', id)
+            }
+        }
+
+        sio.on('user-role-r', (code) => {
+			if (!code) {
+				alert("Rôle modifié avec succès !");
+				location.reload();
+			} else {
+				alert("Erreur lors de la modification du rôle de l'utilisateur.");
+			}
+		})
+    </script>
+{% endblock %}

@@ -1,0 +1,63 @@
+<div>
+    {% block title %}<br>
+    <canvas id="CHART_{% block service_id %}"></canvas>
+    <script type="text/javascript" charset="utf-8">
+        let width_{% block service_id %}, height_{% block service_id %}, gradient_{% block service_id %};
+        function getGradient(ctx, chartArea) {
+            const chartWidth = chartArea.right - chartArea.left; 
+            const chartHeight = chartArea.bottom - chartArea.top; 
+            if (gradient_{% block service_id %} === null || width_{% block service_id %} !== chartWidth || height_{% block service_id %} !== chartHeight) {
+                    width_{% block service_id %} = chartWidth;
+                    height_{% block service_id %} = chartHeight;
+                    gradient_{% block service_id %} = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+                    gradient_{% block service_id %}.addColorStop(0, 'rgb(0, 82, 100)');
+                    gradient_{% block service_id %}.addColorStop(0.5, 'rgb(233, 189, 21)');
+                    gradient_{% block service_id %}.addColorStop(1, 'rgb(212, 0, 0)');
+            }
+
+            return gradient_{% block service_id %};
+        }
+
+        let labels_{% block service_id %} = [1,2,3,4];// DOTO Remove data for test 
+        let data_{% block service_id %} = {
+            labels: labels_{% block service_id %},
+            datasets: [{
+            label: '{% block datatype %}', 
+            borderColor: (context) => {
+                    const chart = context.chart;
+                    const {ctx, chartArea} = chart;
+
+                    if (!chartArea) {
+                      // This case happens on initial chart load
+                      return null;
+                    }
+
+                    return getGradient(ctx, chartArea);
+            },
+            tension: 0.3,
+            data: [1,5,7,1], // DOTO Remove data for test 
+            }]
+        };
+
+        const config_{% block service_id %} = { 
+            type: 'line',
+            data: data_{% block service_id %},
+            options: {}
+        }
+
+        let chart_{% block service_id %} = new Chart(
+            document.getElementById('CHART_{% block service_id %}'),
+            config_{% block service_id %}
+        );
+
+        let socket_{% block service_id %} = io();
+        let count_{% block service_id %} = 1;
+        socket_{% block service_id %}.on('SOCKET_{% block service_id %}', (data) => {
+            chart_{% block service_id %}.data.labels.push(count_{% block service_id %}++);// TO CHANGE (maybe cchange the count_id with a date or nothing ?)
+            chart_{% block service_id %}.data.datasets.forEach((dataset) => {
+                dataset.data.push(data);
+            });
+            chart_{% block service_id %}.update();
+        });
+    </script>
+</div>
