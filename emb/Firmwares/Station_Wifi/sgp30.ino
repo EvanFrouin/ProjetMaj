@@ -3,20 +3,12 @@
 
 SGP30 mySensor; //create an object of the SGP30 class
 
-void setup() {
-  Serial.begin(115200);
-  initSGP30();
-  
-}
-
-void loop() {
- printSGP30();
-}
+int tvoc = 0;
+int co2 = 400;
 
 //Initialize sensor
-void initSGP30(){
+void init_sgp30(){
   Wire.begin();
-  delay(1000);
   if (mySensor.begin() == false) {
     Serial.println("No SGP30 Detected. Check connections.");
     while (1);
@@ -36,15 +28,23 @@ int getTVOC(){
   return mySensor.TVOC;
 }
 
-SGP30 getSGP30(){
-  return mySensor;
+
+void handle_sgp30(){
+  //mySensor.measureAirQuality();
+  //sent_air_quality(String(mySensor.CO2,2), String(mySensor.TVOC,2));
+  tvoc += random(-10, 10);
+  co2 += random(-10, 10);
+  if (tvoc < 0) tvoc =0;
+  if (co2 < 0) co2 =0;
+  sent_air_quality(String(co2), String(tvoc));
+  
+  
 }
 
-
 void printSGP30() {
+  
   //First fifteen readings will be
   //CO2: 400 ppm  TVOC: 0 ppb
-  delay(1000); //Wait 1 second
   //measure CO2 and TVOC levels
   mySensor.measureAirQuality();
   Serial.print("CO2: ");
