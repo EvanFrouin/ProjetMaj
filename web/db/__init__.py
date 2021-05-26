@@ -14,6 +14,7 @@ class User(UserMixin, db.Document):
     name = db.StringField()
     password = db.StringField()
     is_admin = db.BooleanField()
+    rfid_uid = db.StringField()
 
 
 class Patient(db.Document):
@@ -30,9 +31,23 @@ class Patient(db.Document):
 
 
 class Room(db.Document):
+    _id = db.StringField()
     name = db.StringField()
     publishers = db.ListField()
     patient = db.ObjectIdField()
+
+class Publisher(db.Document):
+    _id = db.StringField()
+    name = db.StringField()
+    service_fullname = db.StringField()
+    service = db.StringField()
+    last_val = db.FloatField()
+
+class Tag(db.Document):
+    _id = db.StringField()
+    mac = db.StringField()
+    name = db.StringField()
+    patient = db.StringField()
 
 
 def parse_params(param):
@@ -83,7 +98,7 @@ def update_user_role(user_id):
 
 
 def get_patient_by_query(first=False, **kwargs):
-    patients = Patient.objects(build_query(kwargs))
+    patients = Patient.objects(build_query(kwargs)).order_by('name', 'surname')
     if first:
         return patients.first()
     else:
@@ -105,3 +120,30 @@ def delete_patient(patient_id):
 
 def update_patient(patient_id, data):
     Patient.objects(id=patient_id).update_one(**data)
+
+
+def get_all_rooms():
+    return Room.objects.order_by('name')
+
+def get_room_publishers(room: Room):
+    return room.publishers
+
+    
+def get_all_publishers():
+    return Publisher.objects
+
+
+def get_publisher_services(pub: Publisher):
+    return pub.services
+
+def get_patient_id_from_mac(_mac):
+    return Tag.objects(mac=_mac).first().patient
+
+
+def get_patient_name_from_mac(patient_id):
+    patient = Patient.objects(id=patient_id).first()
+    full_name = patient.name + " " + patient.surname
+    return full_name
+
+def get_tag_name(_mac):
+    return Tag.objects(mac=_mac).first().name

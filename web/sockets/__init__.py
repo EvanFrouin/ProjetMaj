@@ -11,7 +11,34 @@ def config_sockets(app):
 
     @socketio.on('mqtt-data')
     def forward_data(data):
-        socketio.emit('web-data', data)
+        
+        data = json.loads(data)
+        socket_name = "SOCKET_" + data["publisher"] + "_" + data["datatype"]
+        
+        if(data["datatype"] == "temp" ):
+            socketio.emit(socket_name, data["temp"])
+        elif(data["datatype"] == "hum" ):
+            socketio.emit(socket_name, data["hum"])
+        elif(data["datatype"] == "voc" ):
+            socketio.emit(socket_name, data["tvoc"])
+        elif(data["datatype"] == "co2" ):
+            socketio.emit(socket_name, data["co2"])
+        elif(data["datatype"] == "ecg" ):
+            response  = {"ecg_pot":data["ecg_pot"], "reading_number": data["reading_number"]}
+            socketio.emit(socket_name, json.dumps(response))
+        elif(data["datatype"] == "rfid" ):
+            socketio.emit(socket_name, data["uid"])
+        elif(data["datatype"] == "pos" ):
+            #socketio.emit(socket_name, data["mac"])
+            patient_id = get_patient_id_from_mac(data["mac"])
+            tag_name = get_tag_name(data["mac"])+ " - " +get_patient_name_from_mac(patient_id)
+            response  = {"mac":data["mac"], "patient_name": tag_name, "id":patient_id }
+            socketio.emit(socket_name, json.dumps(response))
+        elif(data["datatype"] == "alert" ):
+            socketio.emit(socket_name, data["mac"])
+
+
+
 
     @socketio.on('patient-data-q')
     def patient_data(patient_id):
@@ -45,7 +72,8 @@ def config_sockets(app):
             patient_id = data_dict.pop("id")
             update_patient(patient_id, data_dict)
             code = 0
-        except:
+        except: 
+            print("Can't modify patient")
             code = 1
         finally:
             socketio.emit('patient-update-r', code)

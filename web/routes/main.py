@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request
 from flask_login import login_required, current_user
-from ..db import get_patient_by_query
+from ..db import get_all_publishers, get_all_rooms, get_patient_by_query
 
 main = Blueprint('main', __name__)
 
@@ -8,7 +8,9 @@ main = Blueprint('main', __name__)
 @main.route('/')
 @login_required
 def home():
-    return render_template("dashboard.html")
+    print(get_all_rooms()[0]["name"])
+    print(get_all_publishers()[0]["name"])
+    return render_template("dashboard2.html", rooms=get_all_rooms(), publishers=get_all_publishers() )
 
 
 @main.route('/profile')

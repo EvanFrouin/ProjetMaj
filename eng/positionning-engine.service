@@ -1,0 +1,12 @@
+[Unit]
+Description=This python script routes the MQTT data to the database and maps the RSSI to publisher position 
+After=network.target
+
+[Service]
+User=pi              
+WorkingDirectory=/home/pi/ProjetMaj/eng          
+ExecStart=/home/pi/ProjetMaj/eng/venv/bin/python3 pos-engine.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

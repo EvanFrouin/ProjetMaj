@@ -15,7 +15,7 @@
 			
 			{% for publisher in publishers %}
 				{% if publisher.name in room.publishers and publisher.service in ['temp', 'hum', 'ecg', 'voc', 'co2'] %}
-					<div>
+					<div id="SERVICE_{{ publisher.name }}_{{ publisher.service }}">
 						{{ publisher.service_fullname }}<br>
 						<canvas id="CHART_{{ publisher.name }}_{{ publisher.service }}"></canvas>
 						<script type="text/javascript" charset="utf-8">
@@ -88,7 +88,12 @@
 										x: {
 										display: false
 										}
+									},
+									{% if publisher.service in ['ecg'] %}
+									animation: {
+										duration: 0
 									}
+									{% endif %}
 								}
 							};
 					
@@ -98,6 +103,49 @@
 							);
 					
 
+							{% if publisher.service in ['ecg'] %}
+							// hide the ecg by default 
+							document.getElementById("SERVICE_{{ publisher.name }}_{{ publisher.service }}").style.display = "none";
+							var count_{{ publisher.name }}_{{ publisher.service }} = 1;
+							socket.on('SOCKET_{{ publisher.name }}_{{ publisher.service }}', (data) => {
+								console.log("New socket (ecg) : SOCKET_{{ publisher.name }}_{{ publisher.service }} -- content: " + data)
+								var array = JSON.parse(data);
+								var val_count = array['reading_number'];
+								var values = array['ecg_pot'];
+
+								
+								var date = new Date();
+								var hours = date.getHours();
+								var minutes = date.getMinutes();
+								var sec = date.getSeconds();
+								var new_label = hours + ":" + (minutes<10? "0" + minutes : minutes) + ":"+ (sec<10? "0" + sec : sec);
+
+								for (let index = 0; index < val_count; index++) {
+									chart_{{ publisher.name }}_{{ publisher.service }}.data.labels.push(new_label);// TO CHANGE (maybe change the count_id with a date or nothing ?)
+									chart_{{ publisher.name }}_{{ publisher.service }}.data.datasets.forEach((dataset) => {
+										dataset.data.push(values[index]);
+										if(count_{{ publisher.name }}_{{ publisher.service }} < 100) {
+											count_{{ publisher.name }}_{{ publisher.service }}++;
+										}else{
+											dataset.data.shift();
+											chart_{{ publisher.name }}_{{ publisher.service }}.data.labels.shift();
+										}
+									});
+								}
+								chart_{{ publisher.name }}_{{ publisher.service }}.update();
+							});
+
+							socket.on('SOCKET_{{ publisher.name }}_rfid', (data) => {
+								console.log("New socket (ecg) : SOCKET_{{ publisher.name }}_{{ publisher.service }} -- content: " + data)
+								if( {{ current_user.rfid_uid }} == data){
+									document.getElementById("SERVICE_{{ publisher.name }}_{{ publisher.service }}").style.display = "block";
+								}
+								else{
+									console.log("RFID login not acceped");
+								}
+							});
+							{% else %}
+							chart_{{ publisher.name }}_{{ publisher.service }}.options.animation = false;
 							var count_{{ publisher.name }}_{{ publisher.service }} = 1;
 							socket.on('SOCKET_{{ publisher.name }}_{{ publisher.service }}', (data) => {
 								console.log("New socket : SOCKET_{{ publisher.name }}_{{ publisher.service }} -- content: " + data)
@@ -122,6 +170,7 @@
 
 								chart_{{ publisher.name }}_{{ publisher.service }}.update();
 							});
+							{% endif %}
 						</script>
 					</div>
 				{% elif publisher.name in room.publishers and publisher.service in ['pos'] %}
@@ -133,8 +182,9 @@
 				<script>
 					socket.on('SOCKET_{{ publisher.name }}_{{ publisher.service }}', (data) => {
 						console.log("New socket : SOCKET_{{ publisher.name }}_{{ publisher.service }} -- content: " + data)
+						var array = JSON.parse(data);
 						var lists = document.getElementsByClassName("pos-list");
-						var tag_class = "tag-" + data;
+						var tag_class = "tag-" + array['mac'];
 						var tags = document.getElementsByClassName(tag_class);
 						if(tags.length == lists.length) {
 							for (let index = 0; index < tags.length; index++) {
@@ -147,7 +197,8 @@
 								var li=document.createElement('li');
 								li.classList.add(tag_class);
 								li.id = tag_class +"-"+ lists[index].id;
-								li.innerHTML = data;
+								li.innerHTML = array['patient_name'];
+								li.onclick = function() {socket.emit('patient-data-q', array['id']);};
 								li.style.display = "none"
 								lists[index].appendChild(li);
 							}
@@ -174,6 +225,18 @@
 								tag.classList.remove("alert");
 							}, 25000);
 						
+					});
+
+					function setCookie(cookieValue, minutesValid) {
+						let d = new Date();
+						d.setTime(d.getTime() + (minutesValid * 60 * 1000));
+						let expires = "expires="+ d.toUTCString();
+						document.cookie = "LastPatient=" + cookieValue + ";" + expires + ";path={{ url_for('main.profile') }}";
+					}
+					
+					socket.on('patient-data-r', (data) => {
+							setCookie(data, 10);
+							location.replace("{{ url_for('main.profile') }}")
 					});
 				</script>
 				{% endif %}

@@ -36,8 +36,11 @@ def signup_post():
     name = request.form.get('username')
     password = request.form.get('password')
 
-    user = get_user_by_email(email)
-
+    try:
+        user = get_user_by_email(email)
+    except:
+        print("no users in the DB")
+        
     if user:
         flash("Cette adresse email est déjà utilisée.")
         return redirect(url_for('auth.signup'))
