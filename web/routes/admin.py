@@ -1,7 +1,7 @@
 from functools import wraps
 from flask import Blueprint, render_template, abort
 from flask_login import login_required, current_user
-from ..db import get_all_users
+from ..db import get_all_users, get_all_rooms
 
 admin = Blueprint('admin', __name__)
 
@@ -32,4 +32,4 @@ def users():
 @admin.route('/admin/rooms')
 @admin_required
 def rooms():
-    return {'code': 'ok'}
+    return render_template("admin/rooms.html", results=get_all_rooms())
