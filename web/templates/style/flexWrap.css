@@ -1,0 +1,66 @@
+.flex-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.sub-flex-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.flex-container > div {
+  width: 428px; /* 2 sub-containers -> width*2 + margin*4 + border*4 */
+  min-height: 300px; /* 2 sub-containers -> height*2 */
+  background-color: lightgrey;
+  margin: 10px;
+  text-align: center;
+  line-height: 75px;
+  font-size: 30px;
+  border: 2px solid;
+    border-color: grey;
+    border-radius: .5rem;
+}
+
+.flex-container > div.sub-flex-container {
+  background-color: white;
+  border: none;
+  border-color: none;
+  border-radius: none;
+}
+
+
+.sub-flex-container > div{
+  width: 200px;
+  height: 150px;
+  background-color: lightgrey;
+  margin : 5px;
+  line-height: 75px;
+  font-size: 20px;
+  border: 2px solid;
+  border-color: grey;
+  border-radius: .3rem;
+}
+
+div.roomprofile{
+  background-color: lightgrey;
+  border: 5px solid;
+  border-color: grey;
+  border-radius: .5rem;
+  text-align: center;
+  font-size: 30px;
+  margin: 10px;
+}
+
+div.room{
+    background-color: white;
+    border: 5px solid;
+    border-color: grey;
+    border-radius: .5rem;
+    text-align: center;
+    font-size: 50px;
+    margin: 10px;
+}
+
+

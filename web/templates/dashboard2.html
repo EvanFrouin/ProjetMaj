@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block title %}Index{% endblock %}
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script charset="utf-8">
+	let socket = io();
+</script>
+{% for room in rooms %}
+	<div class="room " id="room-{{ room._id }}">
+		<div class="room-title " id="room-title-{{ room._id }}">
+			{{ room.name }}
+		</div>
+		<div class="flex-container">
+			
+			{% for publisher in publishers %}
+				{% if publisher.name in room.publishers and publisher.service in ['temp', 'hum', 'ecg', 'voc', 'co2'] %}
+					<div>
+						{{ publisher.service_fullname }}<br>
+						<canvas id="CHART_{{ publisher.name }}_{{ publisher.service }}"></canvas>
+						<script type="text/javascript" charset="utf-8">
+							let width_{{ publisher.name }}_{{ publisher.service }}, height_{{ publisher.name }}_{{ publisher.service }}, gradient_{{ publisher.name }}_{{ publisher.service }};
+							function getGradient_{{ publisher.name }}_{{ publisher.service }}(ctx, chartArea) {
+								const chartWidth = chartArea.right - chartArea.left; 
+								const chartHeight = chartArea.bottom - chartArea.top; 
+								if (gradient_{{ publisher.name }}_{{ publisher.service }} === null || width_{{ publisher.name }}_{{ publisher.service }} !== chartWidth || height_{{ publisher.name }}_{{ publisher.service }} !== chartHeight) {
+									width_{{ publisher.name }}_{{ publisher.service }} = chartWidth;
+									height_{{ publisher.name }}_{{ publisher.service }} = chartHeight;
+								{% if publisher.service == "temp" %}
+									gradient_{{ publisher.name }}_{{ publisher.service }} = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+									gradient_{{ publisher.name }}_{{ publisher.service }}.addColorStop(0.5, 'rgb(180, 130, 21)');
+								{% elif publisher.service == "hum" %}
+									gradient_{{ publisher.name }}_{{ publisher.service }} = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+									gradient_{{ publisher.name }}_{{ publisher.service }}.addColorStop(1, 'rgb(0, 0, 255)' );
+									gradient_{{ publisher.name }}_{{ publisher.service }}.addColorStop(0, 'rgb(0, 255, 255)');
+								{% elif publisher.service == "ecg" %}
+									gradient_{{ publisher.name }}_{{ publisher.service }} = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+									gradient_{{ publisher.name }}_{{ publisher.service }}.addColorStop(0, 'rgb(255, 0, 0)' );
+									gradient_{{ publisher.name }}_{{ publisher.service }}.addColorStop(1, 'rgb(255, 0, 0)');
+								{% elif publisher.service == "voc" %}
+									gradient_{{ publisher.name }}_{{ publisher.service }} = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+									gradient_{{ publisher.name }}_{{ publisher.service }}.addColorStop(0, 'rgb(20, 150, 20)' );
+								{% elif publisher.service == "co2" %}
+									gradient_{{ publisher.name }}_{{ publisher.service }} = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+									gradient_{{ publisher.name }}_{{ publisher.service }}.addColorStop(0, 'rgb(30, 30, 30)' );
+								{% else %}
+								
+								{% endif %}
+								}
+								return gradient_{{ publisher.name }}_{{ publisher.service }};
+							}
+					
+							let labels_{{ publisher.name }}_{{ publisher.service }} = [1];// DOTO Remove data for test 
+							let data_{{ publisher.name }}_{{ publisher.service }} = {
+								labels: labels_{{ publisher.name }}_{{ publisher.service }},
+								datasets: [{
+								label: '{{ publisher.service_fullname }}', 
+								borderColor: (context) => {
+										const chart = context.chart;
+										const {ctx, chartArea} = chart;
+					
+										if (!chartArea) {
+										// This case happens on initial chart load
+										return null;
+										}
+					
+										return getGradient_{{ publisher.name }}_{{ publisher.service }}(ctx, chartArea);
+								},
+								{% if publisher.service in ['ecg'] %}
+								tension: 0.0,
+								{% else %}
+								tension: 0.3,
+								{% endif %}
+								data: [{{ publisher.last_val }}], // DOTO Remove data for test 
+								}]
+							};
+
+
+							var config_{{ publisher.name }}_{{ publisher.service }} = { 
+								type: 'line',
+								data: data_{{ publisher.name }}_{{ publisher.service }},
+								options: {
+									plugins: {
+										legend: { display: false },
+										tooltips: { enabled: false }
+									},
+									scales: {
+										x: {
+										display: false
+										}
+									}
+								}
+							};
+					
+							var chart_{{ publisher.name }}_{{ publisher.service }} = new Chart(
+								document.getElementById('CHART_{{ publisher.name }}_{{ publisher.service }}'),
+								config_{{ publisher.name }}_{{ publisher.service }}
+							);
+					
+
+							var count_{{ publisher.name }}_{{ publisher.service }} = 1;
+							socket.on('SOCKET_{{ publisher.name }}_{{ publisher.service }}', (data) => {
+								console.log("New socket : SOCKET_{{ publisher.name }}_{{ publisher.service }} -- content: " + data)
+								var date = new Date();
+								var hours = date.getHours();
+								var minutes = date.getMinutes();
+								var sec = date.getSeconds();
+
+								var new_label = hours + ":" + (minutes<10? "0" + minutes : minutes) + ":"+ (sec<10? "0" + sec : sec);
+
+								chart_{{ publisher.name }}_{{ publisher.service }}.data.labels.push(new_label);// TO CHANGE (maybe change the count_id with a date or nothing ?)
+								chart_{{ publisher.name }}_{{ publisher.service }}.data.datasets.forEach((dataset) => {
+									dataset.data.push(data);
+									if(count_{{ publisher.name }}_{{ publisher.service }} < 100) {
+										count_{{ publisher.name }}_{{ publisher.service }}++;
+									}else{
+										dataset.data.shift();
+										chart_{{ publisher.name }}_{{ publisher.service }}.data.labels.shift();
+									}
+								});
+								
+
+								chart_{{ publisher.name }}_{{ publisher.service }}.update();
+							});
+						</script>
+					</div>
+				{% elif publisher.name in room.publishers and publisher.service in ['pos'] %}
+				<div>
+					{{ publisher.service_fullname }}
+					<ul id="{{ publisher.name }}" class="pos-list">
+					</ul>
+				</div>
+				<script>
+					socket.on('SOCKET_{{ publisher.name }}_{{ publisher.service }}', (data) => {
+						console.log("New socket : SOCKET_{{ publisher.name }}_{{ publisher.service }} -- content: " + data)
+						var lists = document.getElementsByClassName("pos-list");
+						var tag_class = "tag-" + data;
+						var tags = document.getElementsByClassName(tag_class);
+						if(tags.length == lists.length) {
+							for (let index = 0; index < tags.length; index++) {
+								tags[index].style.display = "none"
+							}
+							document.getElementById(tag_class + "-{{ publisher.name }}").style.display = "list-item";
+						}
+						else{
+							for (let index = 0; index < lists.length; index++) {
+								var li=document.createElement('li');
+								li.classList.add(tag_class);
+								li.id = tag_class +"-"+ lists[index].id;
+								li.innerHTML = data;
+								li.style.display = "none"
+								lists[index].appendChild(li);
+							}
+						}
+					});
+
+					socket.on('SOCKET_{{ publisher.name }}_alert', (data) => {
+						console.log("New socket : SOCKET_{{ publisher.name }}_alert -- content: " + data)
+						var tag_class = "tag-" + data + "-{{ publisher.name }}"; 
+						var tag = document.getElementById(tag_class)
+						tag.classList.add("alert");
+						setTimeout(
+							function () {
+								tag.classList.remove("alert");
+							}, 10000);
+
+						setTimeout(
+							function () {
+								tag.classList.add("alert");
+							}, 15000);
+
+						setTimeout(
+							function () {
+								tag.classList.remove("alert");
+							}, 25000);
+						
+					});
+				</script>
+				{% endif %}
+			{% endfor %}
+		</div>
+	</div>
+{% endfor %}
+    
+   
+
+{% endblock %}

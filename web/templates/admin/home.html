@@ -2,12 +2,27 @@
 {% block style %}{{ url_for('static', filename='style/pageContent.css') }}{% endblock %}
 {% block title %}Admin - Home{% endblock %}
 {% block content %}
-	<h1>Admin homepage</h1>
-	<ul>
-		<li><a href="{{ url_for('admin.users') }}">Utilisateurs</a></li>
-		<li><a href="{{ url_for('admin.rooms') }}">Rooms</a></li>
-		<li><a href="#" onclick="resetDB()">Réinitialisation de la base de données</a> </li>
-	</ul>
+<div class="roomprofile">
+	<h1>Page d'administration</h1>
+	<table width="98%">
+		<colgroup>
+			<col span="1" style="width: 33%;"></col>
+			<col span="1" style="width: auto"></col>
+			<col span="1" style="width: 33%;"></col>
+		</colgroup>
+		<tr>
+			<th><a href="{{ url_for('admin.users') }}" class="bi bi-person-badge" style="font-size: 100px"></a></th>
+			<th><a href="{{ url_for('admin.rooms') }}" class="bi bi-columns-gap" style="font-size: 100px"></a></th>
+			<th><a href="#" class="bi bi-x-square" style="font-size: 100px"></a></th>
+		</tr>
+		<tr>
+			<th><a href="{{ url_for('admin.users') }}">Utilisateurs</a></th>
+			<th><a href="{{ url_for('admin.rooms') }}">Pièces</a></th>
+			<th><a href="#" onclick="resetDB()">Réinitialiser BDD</a></th>
+		</tr>
+	</table>
+	<br>
+</div>
 	<script>
 		sio = io();
 
