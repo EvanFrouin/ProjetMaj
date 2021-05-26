@@ -8,10 +8,11 @@
         <thead>
             
             <tr>
-                <th>Mail</th
-                    >
+                <th>Mail</th>
                 <th>Nom</th>
                 <th>Role</th>
+                <th>Suppression</th>
+                <th>Modification</th>
             </tr>
         
         <tr></tr>
@@ -33,6 +34,7 @@
                         <td class="bi bi-x" onclick="deleteUser(this.parentElement.id)"></td>
                         <td class="bi bi-arrow-up" onclick="updateUserRole(this.parentElement.id)"></td>
                     {% else %}
+                        <td></td>
                         <td class="bi bi-arrow-down" onclick="updateUserRole(this.parentElement.id)"></td>
                     {% endif %}
                 </tr>

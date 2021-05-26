@@ -1,8 +1,9 @@
 from flask import Flask, session
 from flask_login import LoginManager
 from datetime import timedelta
-from .db import User, Patient, init_patients, get_patient_by_query
+from .db import User, Patient, Room, init_patients, init_rooms, get_patient_by_query
 from .sockets import config_sockets
+
 
 def config_app(app):
     app.jinja_env.trim_blocks = True
@@ -24,6 +25,9 @@ def config_db(app):
 
     if len(Patient.objects) == 0:
         init_patients()
+
+    if len(Room.objects) == 0:
+        init_rooms()
 
 
 def config_session(app):
@@ -53,7 +57,6 @@ def config_routes(app):
 
 
 def create_app():
-
     app = Flask(__name__)
 
     config_app(app)
